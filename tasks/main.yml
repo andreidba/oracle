@@ -1,0 +1,196 @@
+---
+# tasks file for oracle-db-install
+################################################################################
+# ==> Tasks for oracle-install role. This role creates the Oracle Database
+# ==> Configure the database & listener
+# ==> author: Andrei Nicolae
+################################################################################
+
+# Tasks for Update of the oracle environment variables ( .bash_profile)
+
+- name: Add oracle env LD_LIBRARY_PATH  ...
+  lineinfile:
+      dest='/home/{{oracle_user}}/.bash_profile'
+      insertbefore='BOF'
+      line='export {{ oracle_ld_library_path }}'
+
+
+- name: Add oracle env ORACLE_BASE ...
+  lineinfile:
+      dest='/home/{{oracle_user}}/.bash_profile'
+      insertbefore='BOF'
+      line='export ORACLE_BASE={{ oracle_base }}'
+
+- name: Add oracle env ORACLE_HOME ...
+  lineinfile:
+      dest='/home/{{oracle_user}}/.bash_profile'
+      insertbefore='BOF'
+      line='export ORACLE_HOME={{ oracle_home }}'
+
+- name: Add oracle env ORACLE_HOSTNAME  ...
+  lineinfile:
+      dest='/home/{{oracle_user}}/.bash_profile'
+      insertbefore='BOF'
+      line='export ORACLE_HOSTNAME={{ oracle_hostname }}'
+
+- name: Add oracle env ORACLE_SID  ...
+  lineinfile:
+      dest='/home/{{oracle_user}}/.bash_profile'
+      insertbefore='BOF'
+      line='export ORACLE_SID={{ oracle_sid }}'
+
+- name: Update $PATH variable with oracle binaries location
+  shell: sed -i '/^PATH/s/$/:$ORACLE_HOME\/bin /' /home/oracle/.bash_profile
+  tags: set_env
+
+# Creation of the DB listener
+# Listener name: Listener
+# Listener port: 1521
+
+#1. Copy listner template
+- name: Copy the listener template file ...
+  template: src=netca.rsp.j2 dest={{ installation_folder }}/netca.rsp
+
+#2. Create the database listener via netca using the abowe template
+
+- name: Creation of the database Listener ...
+  command: '{{ oracle_home }}/bin/netca -silent -responseFile {{ installation_folder }}/netca.rsp'
+  become_user: oracle
+  tags: cre_lsnr
+
+#3. Create oracle data file systems
+
+# ==> Create orabin LV
+- name: LVM - Create oradata1 LV
+  lvol:
+    vg: '{{ vg_ora }}'
+    lv: '{{ lv_oradata1 }}'
+    size: '{{ oradata1_lv_size }}'
+
+- name: Format the lv_oradata1 as ext4
+  filesystem:
+    fstype: ext4
+    dev: /dev/{{ vg_ora }}/{{ lv_oradata1 }}
+
+- name: LVM - Create oradata2 LV
+  lvol:
+    vg: '{{ vg_ora }}'
+    lv: '{{ lv_oradata2 }}'
+    size: '{{ oradata2_lv_size }}'
+
+- name: Format the lv_oradata2 as ext4
+  filesystem:
+    fstype: ext4
+    dev: /dev/{{ vg_ora }}/{{ lv_oradata2 }}
+
+- name: LVM - Create archive-logs LV
+  lvol:
+    vg: '{{ vg_ora }}'
+    lv: '{{ lv_archive }}'
+    size: '{{ arch_lv_size }}'
+
+- name: Format the lv_archive as ext4
+  filesystem:
+    fstype: ext4
+    dev: /dev/{{ vg_ora }}/{{ lv_archive }}
+
+
+- name: LVM - Create redo logs LV
+  lvol:
+    vg: '{{ vg_ora }}'
+    lv: '{{ lv_redo }}'
+    size: '{{ redo_lv_size }}'
+
+- name: Format the lv_redo as ext4
+  filesystem:
+    fstype: ext4
+    dev: /dev/{{ vg_ora }}/{{ lv_redo }}
+
+
+# ==> Create oradata  directories
+- name: Create oradata1 directory
+  file: state=directory path={{ oradata1 }} owner={{ oracle_user }} group={{ oracle_install_group }} mode='775' recurse=yes
+
+- name: Create oradata2 directory
+  file: state=directory path={{ oradata1 }} owner={{ oracle_user }} group={{ oracle_install_group }} mode='775' recurse=yes
+
+- name: Create archive logs directory
+  file: state=directory path={{ arch_logs }} owner={{ oracle_user }} group={{ oracle_install_group }} mode='775' recurse=yes
+
+- name: Create redo logs directory
+  file: state=directory path={{ redo_logs }} owner={{ oracle_user }} group={{ oracle_install_group }} mode='775' recurse=yes
+
+# ==> Mount oradata  LV
+- name: Mount oradata1 directory
+  mount:
+    fstype: ext4
+    name: '{{ oradata1 }}'
+    src: '/dev/{{ vg_ora }}/{{ lv_oradata1 }}'
+    opts: rw,noauto
+    state: mounted
+
+- name: Mount oradata2 directory
+  mount:
+    fstype: ext4
+    name: '{{ oradata2 }}'
+    src: '/dev/{{ vg_ora }}/{{ lv_oradata2 }}'
+    opts: rw,noauto
+    state: mounted
+
+- name: Mount archive logs directory
+  mount:
+      fstype: ext4
+      name: '{{ arch_logs }}'
+      src: '/dev/{{ vg_ora }}/{{ lv_archive }}'
+      opts: rw,noauto
+      state: mounted
+
+- name: Mount redo logs directory
+  mount:
+        fstype: ext4
+        name: '{{ redo_logs }}'
+        src: '/dev/{{ vg_ora }}/{{ lv_redo }}'
+        opts: rw,noauto
+        state: mounted
+
+- name: Create oradata1 datafiles directory
+  file: state=directory path={{oradata1}}/datafiles owner={{ oracle_user }} group={{ oracle_install_group }}
+  tags: cre_fs
+- name: Create oradata2 datafiles directories
+  file: state=directory path={{oradata2}}/datafiles owner={{ oracle_user }} group={{ oracle_install_group }}
+
+- name: Create control files directories
+  file: state=directory path={{oradata1}}/control owner={{ oracle_user }} group={{ oracle_install_group }}
+
+- name: Create control files directories
+  file: state=directory path={{oradata2}}/control owner={{ oracle_user }} group={{ oracle_install_group }}
+
+- name: Create archive-logs directory
+  file: state=directory path={{arch_logs}}/archive-logs owner={{ oracle_user }} group={{ oracle_install_group }}
+
+- name: Create redo_logs directory
+  file: state=directory path={{redo_logs}}/redo_logs owner={{ oracle_user }} group={{ oracle_install_group }}
+
+#4 Copy the db templates
+
+- name: Copy the dbca template file ...
+  template: src=dbca.rsp.j2 dest={{ installation_folder }}/dbca-prtp.rsp
+  become_user: oracle
+
+- name: Copy the db template file ...
+  template: src=prtp.dbc.j2 dest={{ installation_folder }}/prtp.dbc
+  become_user: oracle
+  tags: copy_db_template
+
+- name: Show SGA value calculated at 60% of Physical RAM
+  debug:
+       msg: "SGA value is {{sga}}"
+  tags: show_sga
+
+- name: Change ownership of oracle db fs
+  shell: chown -R oracle:oinstall /srv
+#5 Create the database instance and db
+- name: create database
+  command: '{{ oracle_home }}/bin/dbca -silent -responseFile {{ installation_folder }}/dbca-prtp.rsp -templateName {{ installation_folder}}/prtp.dbc'
+  become_user: oracle
+  tags: cre_db

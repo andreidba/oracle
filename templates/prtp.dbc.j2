@@ -1,0 +1,123 @@
+<?xml version = '1.0'?>
+<DatabaseTemplate name="prtp" description="" version="11.2.0.0.0">
+   <CommonAttributes>
+      <option name="OMS" value="true"/>
+      <option name="JSERVER" value="true"/>
+      <option name="SPATIAL" value="true"/>
+      <option name="IMEDIA" value="true"/>
+      <option name="ORACLE_TEXT" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="SAMPLE_SCHEMA" value="false"/>
+      <option name="CWMLITE" value="true">
+         <tablespace id="SYSAUX"/>
+      </option>
+      <option name="APEX" value="false"/>
+      <option name="DV" value="true"/>
+   </CommonAttributes>
+   <Variables/>
+   <CustomScripts Execute="false"/>
+   <InitParamAttributes>
+      <InitParams>
+         <initParam name="control_file_record_keep_time" value="30"/>
+         <initParam name="db_name" value="PRTP"/>
+         <initParam name="filesystemio_options" value="setall"/>
+         <initParam name="os_authent_prefix" value="ops$"/>
+         <initParam name="dispatchers" value="(PROTOCOL=TCP) (SERVICE=prtpXDB)"/>
+         <initParam name="audit_file_dest" value="/srv/orabin/oracle/product/11.2.0/prtp/rdbms/audit"/>
+         <initParam name="compatible" value="11.2.0.4.0"/>
+         <initParam name="cursor_sharing" value="FORCE"/>
+         <initParam name="remote_login_passwordfile" value="EXCLUSIVE"/>
+         <initParam name="log_archive_dest_1" value="'LOCATION=/srv/oradata/archive/archive-logs'"/>
+         <initParam name="sga_target" value="{{sga}}" unit="GB"/>
+         <initParam name="parallel_min_servers" value="8"/>
+         <initParam name="processes" value="2723"/>
+         <initParam name="parallel_servers_target" value="64"/>
+         <initParam name="os_roles" value="FALSE"/>
+         <initParam name="local_listener" value="LISTENER"/>
+         <initParam name="undo_tablespace" value="UNDOTBS1"/>
+         <initParam name="control_files" value="(&quot;/srv/oradata/oradata1/datafiles/control/control01.ctl&quot;, &quot;/srv/oradata/oradata1/datafiles/control/control02.ctl&quot;, &quot;/srv/oradata/oradata2/datafiles/control/control03.ctl&quot;)"/>
+         <initParam name="diagnostic_dest" value="/srv/orabin/oracle/diag"/>
+         <initParam name="parallel_max_servers" value="16"/>
+         <initParam name="audit_trail" value="db"/>
+         <initParam name="control_management_pack_access" value="DIAGNOSTIC+TUNING"/>
+         <initParam name="db_files" value="1024"/>
+         <initParam name="log_archive_format" value="arch_%t_%s_%r.dbf"/>
+         <initParam name="nls_territory" value="AMERICA"/>
+         <initParam name="sessions" value="300"/>
+         <initParam name="db_block_size" value="8192"/>
+         <initParam name="open_cursors" value="300"/>
+         <initParam name="nls_language" value="AMERICAN"/>
+         <initParam name="pga_aggregate_target" value="{{pga}}" unit="MB"/>
+      </InitParams>
+      <MiscParams>
+         <databaseType>MULTIPURPOSE</databaseType>
+         <maxUserConn>20</maxUserConn>
+         <customSGA>false</customSGA>
+         <dataVaultEnabled>false</dataVaultEnabled>
+         <characterSet>AL32UTF8</characterSet>
+         <nationalCharacterSet>AL16UTF16</nationalCharacterSet>
+         <archiveLogMode>true</archiveLogMode>
+         <initParamFileName>{ORACLE_BASE}/admin/{DB_UNIQUE_NAME}/pfile/init.ora</initParamFileName>
+      </MiscParams>
+      <SPfile useSPFile="true">/srv/orabin/oracle/product/11.2.0/prtp/dbs/spfile{SID}.ora</SPfile>
+   </InitParamAttributes>
+   <StorageAttributes>
+      <DataFiles>
+         <Location>{ORACLE_HOME}/assistants/dbca/templates/Seed_Database.dfb</Location>
+         <SourceDBName cdb="false">seeddata</SourceDBName>
+         <Name id="1" Tablespace="SYSTEM" Contents="PERMANENT" Size="800" autoextend="true" blocksize="8192" con_id="1">/srv/oradata/oradata1/datafiles/system01.dbf</Name>
+         <Name id="2" Tablespace="SYSAUX" Contents="PERMANENT" Size="400" autoextend="true" blocksize="8192" con_id="1">/srv/oradata/oradata1/datafiles/sysaux01.dbf</Name>
+         <Name id="3" Tablespace="UNDOTBS1" Contents="UNDO" Size="25" autoextend="true" blocksize="8192" con_id="1">/srv/oradata/oradata1/datafiles/undotbs01.dbf</Name>
+         <Name id="4" Tablespace="USERS" Contents="PERMANENT" Size="5" autoextend="true" blocksize="8192" con_id="1">/srv/oradata/oradata1/datafiles/users01.dbf</Name>
+      </DataFiles>
+      <TempFiles>
+         <Name id="1" Tablespace="TEMP" Contents="TEMPORARY" Size="20" con_id="1">/srv/oradata/oradata1/datafiles/temp01.dbf</Name>
+      </TempFiles>
+      <ControlfileAttributes id="Controlfile">
+         <maxDatafiles>100</maxDatafiles>
+         <maxLogfiles>16</maxLogfiles>
+         <maxLogMembers>3</maxLogMembers>
+         <maxLogHistory>1</maxLogHistory>
+         <maxInstances>8</maxInstances>
+         <image name="control01.ctl" filepath="/srv/oradata/oradata1/datafiles/control/"/>
+         <image name="control02.ctl" filepath="/srv/oradata/oradata1/datafiles/control/"/>
+         <image name="control03.ctl" filepath="/srv/oradata/oradata2/datafiles/control/"/>
+      </ControlfileAttributes>
+      <RedoLogGroupAttributes id="1">
+         <reuse>false</reuse>
+         <fileSize unit="KB">512000</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo01_1.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+         <member ordinal="0" memberName="redo01_2.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="2">
+         <reuse>false</reuse>
+         <fileSize unit="KB">512000</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo02_1.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+         <member ordinal="0" memberName="redo02_2.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="3">
+         <reuse>false</reuse>
+         <fileSize unit="KB">512000</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo03_1.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+         <member ordinal="0" memberName="redo03_2.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="4">
+         <reuse>false</reuse>
+         <fileSize unit="KB">512000</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo04_1.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+         <member ordinal="0" memberName="redo04_2.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+      </RedoLogGroupAttributes>
+      <RedoLogGroupAttributes id="5">
+         <reuse>false</reuse>
+         <fileSize unit="KB">512000</fileSize>
+         <Thread>1</Thread>
+         <member ordinal="0" memberName="redo05_1.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+         <member ordinal="0" memberName="redo05_2.log" filepath="/srv/oradata/redologs/redo_logs/"/>
+      </RedoLogGroupAttributes>
+   </StorageAttributes>
+</DatabaseTemplate>

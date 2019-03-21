@@ -1,0 +1,8 @@
+---
+# vars file for oracle-db-install
+
+oracle_hostname: '{{ ansible_hostname}}'
+oracle_sid: 'prtp'
+oracle_base: '/srv/orabin/{{oracle_user}}'
+oracle_home: '{{ oracle_base }}/product/{{ oracle_install_version }}/{{ dbhome_name }}'
+oracle_ld_library_path: 'LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib'

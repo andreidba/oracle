@@ -1,0 +1,15 @@
+---
+# defaults file for oracle-db-install
+
+oradata1: "/srv/oradata/oradata1"
+oradata2: "/srv/oradata/oradata2"
+arch_logs: "/srv/oradata/archive"
+redo_logs: "/srv/oradata/redologs"
+lv_oradata1: "lv_oradata1"
+lv_oradata2: "lv_oradata2"
+lv_archive: "lv_archive"
+lv_redo: "lv_redo"
+redo_lv_size: "6G"
+arch_lv_size: "15G"
+oradata1_lv_size: "15G"
+oradata2_lv_size: "15G"
