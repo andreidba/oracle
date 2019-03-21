@@ -1,7 +1,7 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role is made for oracle 11gr2 database install.
 
 Requirements
 ------------
